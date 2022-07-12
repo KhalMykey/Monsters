@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import { React, useState, useEffect } from "react";
+import "./App.css";
+import SearchBox from "./components/search-box/search-box.component";
+import Cardlist from "./components/card-list/card-list.component";
 
-function App() {
+//TODO: 
+
+const App = () => {
+  const [searchField, setSearchField] = useState("");
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState(users);
+
+  const onSearchChange = (event) => {
+    const userInput = event.target.value.toLocaleLowerCase();
+    setSearchField(userInput);
+  };
+
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users").then((response) => {
+      response.json().then((json_response) => {
+        setUsers(json_response);
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    const newFilteredUsers = users.filter((people) => {
+      return people.name.toLocaleLowerCase().includes(searchField);
+    });
+    setFilteredUsers(newFilteredUsers);
+  }, [users, searchField]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <SearchBox
+        placehoder="Enter A Name"
+        className="search-box"
+        onChangeHandler={onSearchChange}
+      />
+
+      <Cardlist monsters={filteredUsers} />
     </div>
   );
-}
+};
 
 export default App;
